@@ -87,23 +87,33 @@
     .sidebar-item:hover {
       background-color: #ddd;
     }
+    .sidebar-item.active {
+      background-color: #007bff;
+      color: white;
+    }
     .chat {
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 10px;
+      background-color: #fff;
     }
     #chatMessages {
       flex: 1;
       overflow-y: auto;
       border: 1px solid #ddd;
       padding: 10px;
-      background-color: #fff;
     }
     #messageInput {
       margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
-    #joinGroupButton, #createGroupButton {
+    #sendMessageButton {
+      margin-top: 10px;
+    }
+    #joinGroupButton, #createGroupButton, #createPMButton {
       margin-bottom: 10px;
     }
     .message {
@@ -142,6 +152,7 @@
     <div class="sidebar">
       <button id="createGroupButton">Create a Group</button>
       <button id="joinGroupButton">Join a Group</button>
+      <button id="createPMButton">Create PM</button>
       <div id="chatList"></div>
     </div>
     <div class="chat">
@@ -227,16 +238,16 @@
       document.getElementById('signUpContainer').style.display = 'block';
     });
 
-    // Load and display chats
+    // Load chats
     async function loadChats() {
+      const user = auth.currentUser;
       const chatList = document.getElementById('chatList');
       chatList.innerHTML = '';
 
-      const user = auth.currentUser;
       if (user) {
         const chatsRef = collection(db, 'users', user.uid, 'chats');
         const chatSnapshot = await getDocs(query(chatsRef, orderBy('lastUsed', 'desc')));
-        
+
         chatSnapshot.forEach(doc => {
           const chatId = doc.id;
           const chatName = doc.data().name;
@@ -273,7 +284,7 @@
     document.getElementById('sendMessageButton').addEventListener('click', async () => {
       const user = auth.currentUser;
       const messageInput = document.getElementById('messageInput');
-      const chatId = document.querySelector('.sidebar-item.active')?.textContent; // Get the active chat ID
+      const chatId = document.querySelector('.sidebar-item.active')?.textContent;
 
       if (user && messageInput.value && chatId) {
         const messagesRef = collection(db, 'chats', chatId, 'messages');
@@ -308,6 +319,28 @@
           const chatRef = doc(db, 'users', user.uid, 'chats', chatCode);
           await setDoc(chatRef, { name: chatCode, lastUsed: new Date() });
           loadChats();
+        }
+      }
+    });
+
+    // Create a private message (PM) chat
+    document.getElementById('createPMButton').addEventListener('click', async () => {
+      const recipientEmail = prompt('Enter the recipient email:');
+      if (recipientEmail) {
+        const user = auth.currentUser;
+        if (user) {
+          const recipientName = formatUsername(recipientEmail);
+          const chatId = [formatUsername(user.email), recipientName].sort().join('_');
+          
+          const chatRef = doc(db, 'users', user.uid, 'chats', chatId);
+          const chatSnap = await getDocs(chatRef);
+
+          if (chatSnap.empty) {
+            await setDoc(chatRef, { name: chatId, lastUsed: new Date() });
+          }
+
+          loadChats();
+          loadChat(chatId);
         }
       }
     });
