@@ -58,6 +58,16 @@
       color: red;
       margin-top: 10px;
     }
+    .form-container a {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      color: #007bff;
+      text-decoration: none;
+    }
+    .form-container a:hover {
+      text-decoration: underline;
+    }
     .sidebar {
       width: 250px;
       background-color: #f4f4f4;
@@ -99,6 +109,7 @@
       <input type="password" id="signUpPassword" placeholder="Password">
       <button id="signUpButton">Sign Up</button>
       <div id="signUpError" class="error" style="display: none;"></div>
+      <a href="#" id="showLogin">Already have an account? Log In</a>
     </div>
     <div id="loginContainer" class="form-container" style="display: none;">
       <h2>Log In</h2>
@@ -106,6 +117,7 @@
       <input type="password" id="loginPassword" placeholder="Password">
       <button id="loginButton">Log In</button>
       <div id="loginError" class="error" style="display: none;"></div>
+      <a href="#" id="showSignUp">Don't have an account? Sign Up</a>
     </div>
   </div>
 
@@ -182,6 +194,19 @@
         document.getElementById('loginError').textContent = error.message;
         document.getElementById('loginError').style.display = 'block';
       }
+    });
+
+    // Toggle between Sign Up and Log In forms
+    document.getElementById('showLogin').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('signUpContainer').style.display = 'none';
+      document.getElementById('loginContainer').style.display = 'block';
+    });
+
+    document.getElementById('showSignUp').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('signUpContainer').style.display = 'block';
     });
 
     function loadChats() {
