@@ -3,17 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Application</title>
+  <title>Chat App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      justify-content: space-between;
+    }
+    header, footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 10px;
     }
     #auth-container, #app {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+    }
+    .form-container {
+      width: 300px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      margin: 5px 0;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
     }
     .sidebar {
       width: 200px;
@@ -24,33 +67,49 @@
     .chat {
       flex: 1;
       padding: 10px;
+      display: flex;
+      flex-direction: column;
     }
     #chatMessages {
-      height: 300px;
+      flex: 1;
       overflow-y: auto;
       border: 1px solid #ddd;
       padding: 10px;
       background-color: #fff;
     }
+    #joinGroupButton {
+      margin-bottom: 10px;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+  <header>
+    Chat App - 12 Aug 2024
+  </header>
+
   <div id="auth-container">
-    <div id="auth-section">
+    <div id="auth-section" class="form-container">
       <h2>Sign Up</h2>
       <input type="text" id="signUpEmail" placeholder="Email">
       <input type="password" id="signUpPassword" placeholder="Password">
       <button id="signUpButton">Sign Up</button>
-      <p id="signUpError" style="display: none;"></p>
+      <p id="signUpError" class="error" style="display: none;"></p>
       <p>Already have an account? <a href="#" id="showLogin">Log in</a></p>
     </div>
 
-    <div id="login-section" style="display: none;">
+    <div id="login-section" class="form-container" style="display: none;">
       <h2>Log In</h2>
       <input type="text" id="loginEmail" placeholder="Email">
       <input type="password" id="loginPassword" placeholder="Password">
       <button id="loginButton">Log In</button>
-      <p id="loginError" style="display: none;"></p>
+      <p id="loginError" class="error" style="display: none;"></p>
       <p>Don't have an account? <a href="#" id="showSignUp">Sign up</a></p>
     </div>
   </div>
@@ -68,10 +127,14 @@
     </div>
   </div>
 
+  <footer>
+    an aphex-1 production
+  </footer>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-
+  
   <!-- Your Firebase config and application code -->
   <script>
     // Firebase configuration
