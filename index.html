@@ -10,30 +10,55 @@
       margin: 0;
       padding: 0;
       display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      overflow: hidden;
+      background-color: #f9f9f9;
     }
-    #signup-container {
+    #auth-container {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      width: 300px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    #signup-container input {
+    #auth-container h2 {
+      margin: 0 0 20px 0;
+    }
+    #auth-container input {
       margin-bottom: 10px;
       padding: 10px;
-      width: 250px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
-    #signup-container button {
+    #auth-container button {
       padding: 10px;
       background-color: #007bff;
       color: white;
       border: none;
+      border-radius: 4px;
       cursor: pointer;
+      width: 100%;
     }
-    #signup-container button:hover {
+    #auth-container button:hover {
       background-color: #0056b3;
+    }
+    #auth-container p {
+      color: red;
+      margin: 10px 0;
+    }
+    #auth-container a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    #auth-container a:hover {
+      text-decoration: underline;
     }
     .sidebar {
       width: 250px;
@@ -73,8 +98,8 @@
     }
     #messageInput {
       padding: 10px;
-      width: calc(100% - 22px); /* Adjust width to fit within the container */
-      margin-right: 2px; /* Space for the button */
+      width: calc(100% - 22px);
+      margin-right: 2px;
     }
     #sendMessageButton {
       padding: 10px;
@@ -90,12 +115,24 @@
   </style>
 </head>
 <body>
-  <div id="signup-container">
-    <h2>Sign Up</h2>
-    <input type="text" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button id="signUpButton">Sign Up</button>
-    <p id="error-message" style="color: red;"></p>
+  <div id="auth-container">
+    <div id="auth-section">
+      <h2>Sign Up</h2>
+      <input type="text" id="signUpEmail" placeholder="Email">
+      <input type="password" id="signUpPassword" placeholder="Password">
+      <button id="signUpButton">Sign Up</button>
+      <p id="signUpError" style="display: none;"></p>
+      <p>Already have an account? <a href="#" id="showLogin">Log in</a></p>
+    </div>
+
+    <div id="login-section" style="display: none;">
+      <h2>Log In</h2>
+      <input type="text" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <button id="loginButton">Log In</button>
+      <p id="loginError" style="display: none;"></p>
+      <p>Don't have an account? <a href="#" id="showSignUp">Sign up</a></p>
+    </div>
   </div>
 
   <div id="app" style="display: none;">
@@ -128,29 +165,57 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
+    // Show sign-up form
+    document.getElementById('showLogin').addEventListener('click', function(event) {
+      event.preventDefault();
+      document.getElementById('auth-section').style.display = 'none';
+      document.getElementById('login-section').style.display = 'block';
+    });
+
+    // Show login form
+    document.getElementById('showSignUp').addEventListener('click', function(event) {
+      event.preventDefault();
+      document.getElementById('auth-section').style.display = 'block';
+      document.getElementById('login-section').style.display = 'none';
+    });
+
     // Handle sign-up
     document.getElementById('signUpButton').addEventListener('click', function() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const email = document.getElementById('signUpEmail').value;
+      const password = document.getElementById('signUpPassword').value;
 
       auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-          // Signed up
-          const user = userCredential.user;
-          console.log('User signed up:', user);
-          document.getElementById('signup-container').style.display = 'none';
+          document.getElementById('auth-container').style.display = 'none';
           document.getElementById('app').style.display = 'flex';
         })
         .catch((error) => {
           const errorMessage = error.message;
-          document.getElementById('error-message').textContent = errorMessage;
+          document.getElementById('signUpError').textContent = errorMessage;
+          document.getElementById('signUpError').style.display = 'block';
+        });
+    });
+
+    // Handle login
+    document.getElementById('loginButton').addEventListener('click', function() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          document.getElementById('auth-container').style.display = 'none';
+          document.getElementById('app').style.display = 'flex';
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          document.getElementById('loginError').textContent = errorMessage;
+          document.getElementById('loginError').style.display = 'block';
         });
     });
 
     // Dummy implementation for the chat layout
     document.getElementById('joinGroupButton').addEventListener('click', function() {
       const chatList = document.getElementById('chatList');
-      // This is a placeholder; you would populate this with actual chat data
       chatList.innerHTML = '<p>Chat room 1</p><p>Chat room 2</p>';
     });
 
@@ -161,7 +226,7 @@
       if (message.trim()) {
         chatMessages.innerHTML += `<p>${message}</p>`;
         messageInput.value = '';
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to the bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
       }
     });
   </script>
