@@ -1,190 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Application</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        #sign-up, #sign-in, #join-group, #chat {
-            margin: 20px;
-        }
-
-        input[type="email"], input[type="password"], input[type="text"] {
-            display: block;
-            margin-bottom: 10px;
-            padding: 10px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #messages {
-            border: 1px solid #ddd;
-            padding: 10px;
-            height: 300px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #signup-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #signup-container input {
+      margin-bottom: 10px;
+      padding: 10px;
+      width: 250px;
+    }
+    #signup-container button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #signup-container button:hover {
+      background-color: #0056b3;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    .sidebar button {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .sidebar button:hover {
+      background-color: #0056b3;
+    }
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    #chatHeader {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #chatMessages {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      overflow-y: auto;
+    }
+    #messageInput {
+      padding: 10px;
+      width: calc(100% - 22px); /* Adjust width to fit within the container */
+      margin-right: 2px; /* Space for the button */
+    }
+    #sendMessageButton {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #sendMessageButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-    <!-- Sign Up Form -->
-    <div id="sign-up">
-        <h2>Sign Up</h2>
-        <input type="email" id="sign-up-email" placeholder="Email" required />
-        <input type="password" id="sign-up-password" placeholder="Password" required />
-        <button id="sign-up-btn">Sign Up</button>
+  <div id="signup-container">
+    <h2>Sign Up</h2>
+    <input type="text" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="signUpButton">Sign Up</button>
+    <p id="error-message" style="color: red;"></p>
+  </div>
+
+  <div id="app" style="display: none;">
+    <div class="sidebar">
+      <button id="joinGroupButton">Join a Group</button>
+      <div id="chatList"></div>
     </div>
-
-    <!-- Sign In Form -->
-    <div id="sign-in">
-        <h2>Sign In</h2>
-        <input type="email" id="sign-in-email" placeholder="Email" required />
-        <input type="password" id="sign-in-password" placeholder="Password" required />
-        <button id="sign-in-btn">Sign In</button>
+    <div class="chat">
+      <div id="chatHeader">Select a chat</div>
+      <div id="chatMessages"></div>
+      <input type="text" id="messageInput" placeholder="Type a message">
+      <button id="sendMessageButton">Send</button>
     </div>
+  </div>
 
-    <!-- Chat Interface -->
-    <div id="chat" style="display:none;">
-        <div id="messages"></div>
-        <input type="text" id="message-text" placeholder="Type a message" />
-        <button id="send-message-btn">Send</button>
-        <button id="sign-out-btn">Sign Out</button>
-    </div>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQYBxFJQf44xUAzYpe28UDVk2lFhYYiMk",
+      authDomain: "chat-aphex1.firebaseapp.com",
+      projectId: "chat-aphex1",
+      storageBucket: "chat-aphex1.appspot.com",
+      messagingSenderId: "13190676782",
+      appId: "1:13190676782:web:55d0100fa19d525e47babf",
+      measurementId: "G-QS3GVBG0R2"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    <!-- Join Group Interface -->
-    <div id="join-group">
-        <h2>Join Group</h2>
-        <input type="text" id="group-code" placeholder="Enter Group Code" required />
-        <button id="join-group-btn">Join Group</button>
-    </div>
+    // Handle sign-up
+    document.getElementById('signUpButton').addEventListener('click', function() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
-    <!-- Firebase SDK Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-analytics.js"></script>
-    
-    <!-- Firebase Initialization and Application Logic -->
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDQYBxFJQf44xUAzYpe28UDVk2lFhYYiMk",
-            authDomain: "chat-aphex1.firebaseapp.com",
-            projectId: "chat-aphex1",
-            storageBucket: "chat-aphex1.appspot.com",
-            messagingSenderId: "13190676782",
-            appId: "1:13190676782:web:55d0100fa19d525e47babf",
-            measurementId: "G-QS3GVBG0R2"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const analytics = firebase.analytics();
-        const auth = firebase.auth();
-        const database = firebase.database();
-
-        // Authentication Functions
-        document.getElementById('sign-up-btn').addEventListener('click', () => {
-            const email = document.getElementById('sign-up-email').value;
-            const password = document.getElementById('sign-up-password').value;
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    console.log('User signed up:', userCredential.user);
-                })
-                .catch((error) => {
-                    console.error('Error signing up:', error.message);
-                });
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log('User signed up:', user);
+          document.getElementById('signup-container').style.display = 'none';
+          document.getElementById('app').style.display = 'flex';
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          document.getElementById('error-message').textContent = errorMessage;
         });
+    });
 
-        document.getElementById('sign-in-btn').addEventListener('click', () => {
-            const email = document.getElementById('sign-in-email').value;
-            const password = document.getElementById('sign-in-password').value;
+    // Dummy implementation for the chat layout
+    document.getElementById('joinGroupButton').addEventListener('click', function() {
+      const chatList = document.getElementById('chatList');
+      // This is a placeholder; you would populate this with actual chat data
+      chatList.innerHTML = '<p>Chat room 1</p><p>Chat room 2</p>';
+    });
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    console.log('User signed in:', userCredential.user);
-                    document.getElementById('sign-up').style.display = 'none';
-                    document.getElementById('sign-in').style.display = 'none';
-                    document.getElementById('chat').style.display = 'block';
-                })
-                .catch((error) => {
-                    console.error('Error signing in:', error.message);
-                });
-        });
-
-        document.getElementById('sign-out-btn').addEventListener('click', () => {
-            auth.signOut().then(() => {
-                console.log('User signed out');
-                document.getElementById('sign-up').style.display = 'block';
-                document.getElementById('sign-in').style.display = 'block';
-                document.getElementById('chat').style.display = 'none';
-            }).catch((error) => {
-                console.error('Error signing out:', error.message);
-            });
-        });
-
-        // Join Group
-        let currentGroupCode = '';
-
-        document.getElementById('join-group-btn').addEventListener('click', () => {
-            const groupCode = document.getElementById('group-code').value;
-            currentGroupCode = groupCode;
-
-            firebase.database().ref(`groups/${groupCode}`).once('value')
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        console.log('Group joined:', groupCode);
-                        document.getElementById('join-group').style.display = 'none';
-                        document.getElementById('chat').style.display = 'block';
-                        loadMessages(groupCode);
-                    } else {
-                        console.log('Group does not exist.');
-                    }
-                });
-        });
-
-        // Load Messages
-        function loadMessages(groupCode) {
-            firebase.database().ref(`groups/${groupCode}/messages`).on('child_added', (snapshot) => {
-                const message = snapshot.val();
-                const messageElement = document.createElement('div');
-                messageElement.textContent = `${message.sender}: ${message.text}`;
-                document.getElementById('messages').appendChild(messageElement);
-            });
-        }
-
-        // Send Message
-        document.getElementById('send-message-btn').addEventListener('click', () => {
-            const messageText = document.getElementById('message-text').value;
-
-            if (currentGroupCode && messageText) {
-                const newMessageKey = firebase.database().ref().child(`groups/${currentGroupCode}/messages`).push().key;
-                firebase.database().ref(`groups/${currentGroupCode}/messages/${newMessageKey}`).set({
-                    sender: firebase.auth().currentUser.uid,
-                    text: messageText,
-                    timestamp: Date.now()
-                });
-
-                document.getElementById('message-text').value = ''; // Clear the input field
-            }
-        });
-    </script>
+    document.getElementById('sendMessageButton').addEventListener('click', function() {
+      const messageInput = document.getElementById('messageInput');
+      const chatMessages = document.getElementById('chatMessages');
+      const message = messageInput.value;
+      if (message.trim()) {
+        chatMessages.innerHTML += `<p>${message}</p>`;
+        messageInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to the bottom
+      }
+    });
+  </script>
 </body>
 </html>
