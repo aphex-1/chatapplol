@@ -68,14 +68,18 @@
     .form-container a:hover {
       text-decoration: underline;
     }
-    .sidebar {
-      width: 300px;
-      background-color: #f4f4f4;
-      padding: 10px;
-      border-right: 1px solid #ddd;
+    #app {
+      display: flex;
+      width: 100%;
+    }
+    .sidebar-container {
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
+      width: 300px;
+      background-color: #f4f4f4;
+      border-right: 1px solid #ddd;
+      padding: 10px;
+      box-sizing: border-box;
     }
     .sidebar-item {
       padding: 10px;
@@ -91,12 +95,20 @@
       background-color: #007bff;
       color: white;
     }
-    .chat {
+    .create-menu {
+      margin-bottom: 20px;
+    }
+    .chat-container {
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 10px;
       background-color: #fff;
+      height: calc(100vh - 80px); /* Adjust to full height minus header/footer */
+    }
+    .chat-header {
+      font-size: 1.5em;
+      margin-bottom: 10px;
     }
     #chatMessages {
       flex: 1;
@@ -112,15 +124,6 @@
     }
     #sendMessageButton {
       margin-top: 10px;
-    }
-    #joinGroupButton, #createGroupButton, #createPMButton {
-      margin-bottom: 10px;
-    }
-    .message {
-      margin-bottom: 10px;
-    }
-    .message .username {
-      font-weight: bold;
     }
   </style>
 </head>
@@ -148,15 +151,17 @@
     </div>
   </div>
 
-  <div id="app" style="display: none; height: calc(100vh - 80px);">
-    <div class="sidebar">
-      <button id="createGroupButton">Create a Group</button>
-      <button id="joinGroupButton">Join a Group</button>
-      <button id="createPMButton">Create PM</button>
+  <div id="app" style="display: none;">
+    <div class="sidebar-container">
+      <div class="create-menu">
+        <button id="createGroupButton">Create a Group</button>
+        <button id="joinGroupButton">Join a Group</button>
+        <button id="createPMButton">Create PM</button>
+      </div>
       <div id="chatList"></div>
     </div>
-    <div class="chat">
-      <div id="chatHeader">Select a chat</div>
+    <div class="chat-container">
+      <div id="chatHeader" class="chat-header">Select a chat</div>
       <div id="chatMessages"></div>
       <input type="text" id="messageInput" placeholder="Type a message">
       <button id="sendMessageButton">Send</button>
