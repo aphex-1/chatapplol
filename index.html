@@ -69,12 +69,23 @@
       text-decoration: underline;
     }
     .sidebar {
-      width: 250px;
+      width: 300px;
       background-color: #f4f4f4;
       padding: 10px;
       border-right: 1px solid #ddd;
       display: flex;
       flex-direction: column;
+      overflow-y: auto;
+    }
+    .sidebar-item {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      background-color: #e9ecef;
+    }
+    .sidebar-item:hover {
+      background-color: #ddd;
     }
     .chat {
       flex: 1;
@@ -94,6 +105,12 @@
     }
     #joinGroupButton {
       margin-bottom: 10px;
+    }
+    .message {
+      margin-bottom: 10px;
+    }
+    .message .username {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -121,7 +138,7 @@
     </div>
   </div>
 
-  <div id="app" style="display: none;">
+  <div id="app" style="display: none; height: calc(100vh - 80px);">
     <div class="sidebar">
       <button id="joinGroupButton">Join a Group</button>
       <div id="chatList"></div>
@@ -142,7 +159,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
-    import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDQYBxFJQf44xUAzYpe28UDVk2lFhYYiMk",
@@ -209,34 +226,61 @@
       document.getElementById('signUpContainer').style.display = 'block';
     });
 
-    function loadChats() {
+    // Load and display chats
+    async function loadChats() {
       const chatList = document.getElementById('chatList');
-      chatList.innerHTML = '<p>Chat room 1</p><p>Chat room 2</p>';
+      chatList.innerHTML = '';
+
+      const user = auth.currentUser;
+      if (user) {
+        const chatsRef = collection(db, 'users', user.uid, 'chats');
+        const chatSnapshot = await getDocs(query(chatsRef, orderBy('lastUsed', 'desc')));
+        
+        chatSnapshot.forEach(doc => {
+          const chatId = doc.id;
+          const chatName = doc.data().name;
+          const chatItem = document.createElement('div');
+          chatItem.textContent = chatName;
+          chatItem.className = 'sidebar-item';
+          chatItem.addEventListener('click', () => {
+            loadMessages(chatId);
+          });
+          chatList.appendChild(chatItem);
+        });
+      }
     }
 
-    document.getElementById('joinGroupButton').addEventListener('click', async () => {
-      const chatName = prompt('Enter the name of the chat room:');
-      if (chatName) {
-        try {
-          const docRef = await addDoc(collection(db, 'chats'), { name: chatName });
-          console.log('Chat room created with ID: ', docRef.id);
-          loadChats();
-        } catch (error) {
-          console.error('Error adding document: ', error);
-        }
-      }
-    });
+    // Load and display messages
+    function loadMessages(chatId) {
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML = '';
 
+      const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp'));
+      onSnapshot(q, (querySnapshot) => {
+        chatMessages.innerHTML = '';
+        querySnapshot.forEach((doc) => {
+          const message = doc.data();
+          const username = formatUsername(message.userId);
+          chatMessages.innerHTML += `<p class="message"><span class="username">${username}:</span> ${message.text}</p>`;
+        });
+      });
+
+      // Update the chat header
+      document.getElementById('chatHeader').textContent = `Chat: ${chatId}`;
+    }
+
+    // Send message
     document.getElementById('sendMessageButton').addEventListener('click', async () => {
       const message = document.getElementById('messageInput').value;
-      if (message.trim()) {
-        const user = auth.currentUser;
-        const chatId = formatUsername(user.email);
+      const chatId = document.getElementById('chatHeader').textContent.replace('Chat: ', '');
+
+      if (message.trim() !== '' && chatId) {
         try {
+          const user = auth.currentUser;
           await addDoc(collection(db, 'chats', chatId, 'messages'), {
             text: message,
             timestamp: new Date(),
-            userId: user.uid
+            userId: user.email
           });
           document.getElementById('messageInput').value = '';
         } catch (error) {
@@ -245,22 +289,10 @@
       }
     });
 
-    function loadMessages(chatId) {
-      const chatMessages = document.getElementById('chatMessages');
-      const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp'));
-      onSnapshot(q, (querySnapshot) => {
-        chatMessages.innerHTML = '';
-        querySnapshot.forEach((doc) => {
-          const message = doc.data();
-          chatMessages.innerHTML += `<p>${message.text}</p>`;
-        });
-      });
-    }
-
+    // Initial load of chats
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        const chatId = formatUsername(user.email);
-        loadMessages(chatId);
+        loadChats();
       }
     });
   </script>
