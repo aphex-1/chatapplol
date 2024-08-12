@@ -7,110 +7,30 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f9f9f9;
     }
-    #auth-container {
+    #auth-container, #app {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      width: 300px;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    #auth-container h2 {
-      margin: 0 0 20px 0;
-    }
-    #auth-container input {
-      margin-bottom: 10px;
-      padding: 10px;
-      width: 100%;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    #auth-container button {
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 100%;
-    }
-    #auth-container button:hover {
-      background-color: #0056b3;
-    }
-    #auth-container p {
-      color: red;
-      margin: 10px 0;
-    }
-    #auth-container a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    #auth-container a:hover {
-      text-decoration: underline;
+      justify-content: center;
+      height: 100vh;
     }
     .sidebar {
-      width: 250px;
-      background-color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
-    .sidebar button {
-      margin-bottom: 20px;
+      width: 200px;
+      background-color: #f4f4f4;
       padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .sidebar button:hover {
-      background-color: #0056b3;
+      border-right: 1px solid #ddd;
     }
     .chat {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-    }
-    #chatHeader {
-      font-size: 24px;
-      margin-bottom: 20px;
+      padding: 10px;
     }
     #chatMessages {
-      flex: 1;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
+      height: 300px;
       overflow-y: auto;
-    }
-    #messageInput {
+      border: 1px solid #ddd;
       padding: 10px;
-      width: calc(100% - 22px);
-      margin-right: 2px;
-    }
-    #sendMessageButton {
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    #sendMessageButton:hover {
-      background-color: #0056b3;
+      background-color: #fff;
     }
   </style>
 </head>
@@ -148,8 +68,11 @@
     </div>
   </div>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+
+  <!-- Your Firebase config and application code -->
   <script>
     // Firebase configuration
     const firebaseConfig = {
@@ -161,6 +84,7 @@
       appId: "1:13190676782:web:55d0100fa19d525e47babf",
       measurementId: "G-QS3GVBG0R2"
     };
+
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
