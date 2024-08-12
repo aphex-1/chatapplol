@@ -132,11 +132,11 @@
   </footer>
 
   <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
+  <script type="module">
+    // Import the necessary Firebase SDKs
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
 
-  <!-- Your Firebase config and application code -->
-  <script>
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDQYBxFJQf44xUAzYpe28UDVk2lFhYYiMk",
@@ -149,8 +149,8 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
     // Show sign-up form
     document.getElementById('showLogin').addEventListener('click', function(event) {
@@ -171,7 +171,7 @@
       const email = document.getElementById('signUpEmail').value;
       const password = document.getElementById('signUpPassword').value;
 
-      auth.createUserWithEmailAndPassword(email, password)
+      createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           document.getElementById('auth-container').style.display = 'none';
           document.getElementById('app').style.display = 'flex';
@@ -188,7 +188,7 @@
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
 
-      auth.signInWithEmailAndPassword(email, password)
+      signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           document.getElementById('auth-container').style.display = 'none';
           document.getElementById('app').style.display = 'flex';
