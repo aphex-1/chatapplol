@@ -1,360 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    header, footer {
-      background-color: #333;
-      color: white;
-      text-align: center;
-      padding: 10px;
-    }
-    #auth-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: calc(100vh - 80px); /* Adjust height minus header/footer */
-    }
-    .form-container {
-      width: 300px;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      background-color: #fff;
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    button {
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .error {
-      color: red;
-      margin-top: 10px;
-    }
-    .form-container a {
-      display: block;
-      text-align: center;
-      margin-top: 10px;
-      color: #007bff;
-      text-decoration: none;
-    }
-    .form-container a:hover {
-      text-decoration: underline;
-    }
-    #app {
-      display: flex;
-      height: calc(100vh - 80px); /* Adjust height minus header/footer */
-      flex: 1;
-    }
-    .sidebar-container {
-      width: 300px;
-      background-color: #f4f4f4;
-      border-right: 1px solid #ddd;
-      padding: 10px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-    }
-    .create-menu {
-      margin-bottom: 20px;
-    }
-    .sidebar-item {
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 5px;
-      cursor: pointer;
-      background-color: #e9ecef;
-    }
-    .sidebar-item:hover {
-      background-color: #ddd;
-    }
-    .sidebar-item.active {
-      background-color: #007bff;
-      color: white;
-    }
-    .chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      background-color: #fff;
-    }
-    .chat-header {
-      font-size: 1.5em;
-      margin-bottom: 10px;
-    }
-    #chatMessages {
-      flex: 1;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      padding: 10px;
-    }
-    #messageInput {
-      margin-top: 10px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    #sendMessageButton {
-      margin-top: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.13.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.13.0/firebase-firestore.js"></script>
+
+    <!-- Basic Styling -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 60%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .header {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .chat-window {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: scroll;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            max-width: 70%;
+        }
+        .message-input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 0 0 8px 8px;
+        }
+        .message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+        .send-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    Chat App - 12 Aug 2024
-  </header>
 
-  <div id="auth-container">
-    <div id="signUpContainer" class="form-container">
-      <h2>Sign Up</h2>
-      <input type="email" id="signUpEmail" placeholder="Email">
-      <input type="password" id="signUpPassword" placeholder="Password">
-      <button id="signUpButton">Sign Up</button>
-      <div id="signUpError" class="error" style="display: none;"></div>
-      <a href="#" id="showLogin">Already have an account? Log In</a>
+<div class="chat-container">
+    <div class="header">Chat App</div>
+    <div id="chat-window" class="chat-window">
+        <!-- Messages will be dynamically inserted here -->
     </div>
-    <div id="loginContainer" class="form-container" style="display: none;">
-      <h2>Log In</h2>
-      <input type="email" id="loginEmail" placeholder="Email">
-      <input type="password" id="loginPassword" placeholder="Password">
-      <button id="loginButton">Log In</button>
-      <div id="loginError" class="error" style="display: none;"></div>
-      <a href="#" id="showSignUp">Don't have an account? Sign Up</a>
+    <div class="message-input-container">
+        <input id="message-input" class="message-input" type="text" placeholder="Type your message...">
+        <button id="send-button" class="send-button">Send</button>
     </div>
-  </div>
+</div>
 
-  <div id="app" style="display: none;">
-    <div class="sidebar-container">
-      <div class="create-menu">
-        <button id="createGroupButton">Create a Group</button>
-        <button id="joinGroupButton">Join a Group</button>
-        <button id="createPMButton">Create PM</button>
-      </div>
-      <div id="chatList"></div>
-    </div>
-    <div class="chat-container">
-      <div id="chatHeader" class="chat-header">Select a chat</div>
-      <div id="chatMessages"></div>
-      <input type="text" id="messageInput" placeholder="Type a message">
-      <button id="sendMessageButton">Send</button>
-    </div>
-  </div>
-
-  <footer>
-    an aphex-1 production
-  </footer>
-
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, setDoc, getDocs } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
-
+<script>
+    // Firebase configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyDQYBxFJQf44xUAzYpe28UDVk2lFhYYiMk",
-      authDomain: "chat-aphex1.firebaseapp.com",
-      projectId: "chat-aphex1",
-      storageBucket: "chat-aphex1.appspot.com",
-      messagingSenderId: "13190676782",
-      appId: "1:13190676782:web:55d0100fa19d525e47babf",
-      measurementId: "G-QS3GVBG0R2"
+        apiKey: "AIzaSyDQYBxFJQf44xUAzYpe28UDVk2lFhYYiMk",
+        authDomain: "chat-aphex1.firebaseapp.com",
+        projectId: "chat-aphex1",
+        storageBucket: "chat-aphex1.appspot.com",
+        messagingSenderId: "13190676782",
+        appId: "1:13190676782:web:55d0100fa19d525e47babf",
+        measurementId: "G-QS3GVBG0R2"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Format username from email
-    function formatUsername(email) {
-      const [localPart] = email.split('@');
-      const nameParts = localPart.split('.');
-      return nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
-    }
+    // References
+    const chatWindow = document.getElementById('chat-window');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
 
-    // Auth functions
-    document.getElementById('signUpButton').addEventListener('click', async () => {
-      const email = document.getElementById('signUpEmail').value;
-      const password = document.getElementById('signUpPassword').value;
+    // Group/Chat ID
+    const groupId = 'groupId1';
 
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
-        loadChats();
-      } catch (error) {
-        document.getElementById('signUpError').textContent = error.message;
-        document.getElementById('signUpError').style.display = 'block';
-      }
-    });
-
-    document.getElementById('loginButton').addEventListener('click', async () => {
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
-        loadChats();
-      } catch (error) {
-        document.getElementById('loginError').textContent = error.message;
-        document.getElementById('loginError').style.display = 'block';
-      }
-    });
-
-    // Toggle between Sign Up and Log In forms
-    document.getElementById('showLogin').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('signUpContainer').style.display = 'none';
-      document.getElementById('loginContainer').style.display = 'block';
-    });
-
-    document.getElementById('showSignUp').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('loginContainer').style.display = 'none';
-      document.getElementById('signUpContainer').style.display = 'block';
-    });
-
-    // Load chats
-    async function loadChats() {
-      const user = auth.currentUser;
-      const chatList = document.getElementById('chatList');
-      chatList.innerHTML = '';
-
-      if (user) {
-        const chatsRef = collection(db, 'users', user.uid, 'chats');
-        const chatSnapshot = await getDocs(query(chatsRef, orderBy('lastUsed', 'desc')));
-
-        chatSnapshot.forEach(doc => {
-          const chatId = doc.id;
-          const chatName = doc.data().name;
-          const chatElement = document.createElement('div');
-          chatElement.className = 'sidebar-item';
-          chatElement.textContent = chatName;
-          chatElement.addEventListener('click', () => loadChat(chatId));
-          chatList.appendChild(chatElement);
+    // Load chat messages
+    db.collection('chats')
+        .where('groupId', '==', groupId)
+        .orderBy('timestamp')
+        .onSnapshot((snapshot) => {
+            chatWindow.innerHTML = ''; // Clear chat window
+            snapshot.forEach((doc) => {
+                const messageData = doc.data();
+                const messageElement = document.createElement('div');
+                messageElement.className = 'chat-message';
+                messageElement.textContent = `${messageData.user}: ${messageData.message}`;
+                chatWindow.appendChild(messageElement);
+            });
         });
-      }
-    }
-
-    // Load selected chat
-    async function loadChat(chatId) {
-      const chatHeader = document.getElementById('chatHeader');
-      const chatMessages = document.getElementById('chatMessages');
-      chatMessages.innerHTML = '';
-
-      const messagesRef = collection(db, 'chats', chatId, 'messages');
-      const messageSnapshot = await getDocs(query(messagesRef, orderBy('timestamp')));
-
-      messageSnapshot.forEach(doc => {
-        const messageData = doc.data();
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message';
-        messageElement.innerHTML = `<span class="username">${messageData.username}:</span> ${messageData.text}`;
-        chatMessages.appendChild(messageElement);
-      });
-
-      chatHeader.textContent = `Chat: ${chatId}`;
-    }
 
     // Send message
-    document.getElementById('sendMessageButton').addEventListener('click', async () => {
-      const user = auth.currentUser;
-      const messageInput = document.getElementById('messageInput');
-      const chatId = document.querySelector('.sidebar-item.active')?.textContent;
-
-      if (user && messageInput.value && chatId) {
-        const messagesRef = collection(db, 'chats', chatId, 'messages');
-        await addDoc(messagesRef, {
-          username: formatUsername(user.email),
-          text: messageInput.value,
-          timestamp: new Date()
-        });
-        messageInput.value = '';
-      }
-    });
-
-    // Create a new group chat
-    document.getElementById('createGroupButton').addEventListener('click', async () => {
-      const chatName = prompt('Enter group chat name:');
-      if (chatName) {
-        const user = auth.currentUser;
-        if (user) {
-          const chatRef = doc(db, 'users', user.uid, 'chats', chatName);
-          await setDoc(chatRef, { name: chatName, lastUsed: new Date() });
-          loadChats();
+    sendButton.addEventListener('click', () => {
+        const message = messageInput.value.trim();
+        if (message) {
+            db.collection('chats').add({
+                message: message,
+                user: 'User1', // You can replace 'User1' with actual user identification
+                groupId: groupId,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            messageInput.value = ''; // Clear input
         }
-      }
     });
+</script>
 
-    // Join an existing group chat
-    document.getElementById('joinGroupButton').addEventListener('click', async () => {
-      const chatCode = prompt('Enter the chat code:');
-      if (chatCode) {
-        const user = auth.currentUser;
-        if (user) {
-          const chatRef = doc(db, 'users', user.uid, 'chats', chatCode);
-          await setDoc(chatRef, { name: chatCode, lastUsed: new Date() });
-          loadChats();
-        }
-      }
-    });
-
-    // Create a private message (PM) chat
-    document.getElementById('createPMButton').addEventListener('click', async () => {
-      const recipientEmail = prompt('Enter the recipient email:');
-      if (recipientEmail) {
-        const user = auth.currentUser;
-        if (user) {
-          const recipientName = formatUsername(recipientEmail);
-          const chatId = [formatUsername(user.email), recipientName].sort().join('_');
-          
-          const chatRef = doc(db, 'users', user.uid, 'chats', chatId);
-          const chatSnap = await getDocs(chatRef);
-
-          if (chatSnap.empty) {
-            await setDoc(chatRef, { name: chatId, lastUsed: new Date() });
-          }
-
-          loadChats();
-          loadChat(chatId);
-        }
-      }
-    });
-
-    // Load initial chats if user is logged in
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
-        loadChats();
-      } else {
-        document.getElementById('auth-container').style.display = 'flex';
-        document.getElementById('app').style.display = 'none';
-      }
-    });
-  </script>
 </body>
 </html>
